@@ -339,17 +339,23 @@ def update_student(conn):
         return
 
     # Get the new value for the chosen attribute
-    new_value = input(f"Enter the new value for {attribute}: ")
+    validation_functions = {
+        "FirstName": is_valid_name,
+        "LastName": is_valid_name,
+        "GPA": is_valid_gpa,
+        "Major": is_valid_major,
+        "Address": is_valid_address,
+        "City": is_valid_name,
+        "State": is_valid_state,
+        "ZipCode": is_valid_zip_code,
+        "MobilePhoneNumber": is_valid_phone_number,
+    }
 
-    # If the attribute is GPA, validate it's a float
-    if attribute == "GPA" and not is_valid_gpa(new_value):
-        print("Invalid GPA. Must be a numeric value between 0.0 and 4.0.")
-        return
-
-    # If the attribute is MobilePhoneNumber, validate it's a correct phone number
-    if attribute == "MobilePhoneNumber" and not is_valid_phone_number(new_value):
-        print("Invalid phone number. Must be 10 digits without any spaces or symbols.")
-        return
+    new_value = get_validated_input(
+        f"Enter the new value for {attribute}: ",
+        f"Invalid input for {attribute}.",
+        lambda input: input and validation_functions[attribute](input)
+    )
 
     # Update the database
     update_query = f"UPDATE Students SET {attribute} = ? WHERE StudentId = ? AND isDeleted = 0"
